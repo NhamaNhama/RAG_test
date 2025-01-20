@@ -1,0 +1,31 @@
+version: '3.8'
+services:
+  web:
+    build: .
+    container_name: rag_app
+    ports:
+      - "8000:8000"
+    environment:
+      ES_ENDPOINT: "http://opensearch:9200"
+      EMBEDDING_INDEX: "embedding_index"
+      ANTHROPIC_API_KEY: "dummy_key" 
+    depends_on:
+      - opensearch
+
+  opensearch:
+    image: opensearchproject/opensearch:2.6.0
+    container_name: opensearch
+    environment:
+      - discovery.type=single-node
+      - plugins.security.disabled=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - opensearch-data:/usr/share/opensearch/data
+    ports:
+      - "9200:9200"
+
+volumes:
+  opensearch-data: 
