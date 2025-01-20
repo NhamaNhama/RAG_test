@@ -24,6 +24,8 @@ COPY . .
 # ポートを公開 (本番では ALB/ECS のターゲットグループが割り当て)
 EXPOSE 8000
 
+ENV DJANGO_SETTINGS_MODULE=backend.mysite.settings
+
 # Gunicorn を使ってアプリ起動
 # DJANGO_SETTINGS_MODULE で settings.py パスを指定 (mysite/settings など)
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "mysite.wsgi:application"] 
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "backend.mysite.wsgi:application"] 
