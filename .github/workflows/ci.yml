@@ -26,9 +26,5 @@ jobs:
           pip install --upgrade pip
           pip install setuptools-rust wheel maturin
           pip install -r requirements.txt
-      - name: Build tokenizers (Rust→Python via maturin)
-        run: |
-          cd tokenizers-lib
-          maturin build --release
       - name: Run tests
         run: pytest 
