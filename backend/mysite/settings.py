@@ -14,7 +14,7 @@ INSTALLED_APPS = [
 'django.contrib.sessions',
 'django.contrib.messages',
 'django.contrib.staticfiles',
-# RAG アプリを入れる
+# RAG アプリを入れる。
 'rag_app',
 ]
 MIDDLEWARE = [
