@@ -1,12 +1,7 @@
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+name: CI
 
-      
+on: [push]
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -30,6 +25,8 @@ jobs:
           pip install setuptools-rust wheel maturin
           pip install -r requirements.txt
           pip install pytest
+      - name: Export PYTHONPATH
+        run: echo "PYTHONPATH=\${PYTHONPATH}:${{ github.workspace }}" >> $GITHUB_ENV
       - name: Run tests
         run: |
           export DJANGO_SETTINGS_MODULE=backend.mysite.settings
