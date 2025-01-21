@@ -3,6 +3,7 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from unittest.mock import patch
 import logging
+from backend.rag_app.views import QueryView
 
 class QueryViewTests(TestCase):
     def setUp(self):
