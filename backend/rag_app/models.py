@@ -12,6 +12,7 @@ class TimeStampedModel(models.Model):
 class Document(TimeStampedModel):
     title = models.CharField(max_length=200)
     content = models.TextField()
+    s3_key = models.CharField(max_length=255, blank=True, default="")
 
 # 既存の Embedding モデルを継承
 class Embedding(TimeStampedModel):

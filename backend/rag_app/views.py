@@ -15,6 +15,10 @@ import boto3
 from botocore.exceptions import BotoCoreError, ClientError
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
+import uuid
+import PyPDF2
+import docx
+from django.core.files.storage import default_storage
 
 
 API_URL = "https://api.anthropic.com/v1/complete"
@@ -242,4 +246,136 @@ def query_view(request):
             return JsonResponse({"error": f"Server error: {e}"}, status=500)
 
     logger.info("Invalid request method for query_view")
-    return JsonResponse({"error": "Invalid request method"}, status=400) 
+    return JsonResponse({"error": "Invalid request method"}, status=400)
+
+@csrf_exempt
+def upload_document_view(request):
+    """
+    新規ドキュメントをDBに追加し、OpenSearchにインデックスする簡易例。
+    """
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            title = data.get('title', '').strip()
+            content = data.get('content', '').strip()
+
+            if not title or not content:
+                return JsonResponse({"error": "タイトルまたは本文が空です"}, status=400)
+
+            # ▼ 1) AWS S3 へドキュメントをアップロード
+            s3_client = boto3.client("s3", region_name="ap-northeast-1")  # リージョンは適宜変更
+            bucket_name = getattr(settings, "S3_BUCKET", "my-bucket")     # settings.py や環境変数で指定
+            unique_key = str(uuid.uuid4()) + ".txt"
+            s3_client.put_object(
+                Bucket=bucket_name,
+                Key=unique_key,
+                Body=content.encode("utf-8")
+            )
+
+            # ▼ 2) DBに保存 (content は保存せず、S3キーを保持する想定)
+            doc = Document.objects.create(
+                title=title,
+                content="",     # contentカラムが必須なら空文字で保持
+                s3_key=unique_key  # models.py で s3_key フィールドを用意しておく
+            )
+
+            # ▼ 3) ベクトル生成(例: sentence-transformers)
+            vector = model.encode([content])[0].tolist()
+
+            # ▼ 4) Embeddingモデルにも保存
+            Embedding.objects.create(document=doc, vector=bytes(vector))
+
+            # ▼ 5) OpenSearch へインデックス
+            os_doc = {
+                "title": title,
+                "content_s3": f"s3://{bucket_name}/{unique_key}",
+                "embedding": vector,
+            }
+            os_client.index(index=EMBEDDING_INDEX, body=os_doc)
+
+            return JsonResponse({"message": "ドキュメントのアップロードが完了しました。"})
+        except Exception as e:
+            logger.exception("upload_document_view でエラー発生")
+            return JsonResponse({"error": f"エラーが発生しました: {str(e)}"}, status=500)
+
+    return JsonResponse({"error": "Invalid request method"}, status=400)
+
+@csrf_exempt
+def upload_file_document_view(request):
+    """
+    PDF/Wordファイルを複数まとめてアップロードし、テキスト抽出 → S3保存 → Embedding → OSインデックス
+    """
+    if request.method != 'POST':
+        return JsonResponse({"error": "Invalid request method"}, status=400)
+
+    try:
+        # 複数ファイルを取得
+        files = request.FILES.getlist('files')
+        if not files:
+            return JsonResponse({"error": "ファイルが選択されていません。"}, status=400)
+
+        results = []  # 各ファイルの処理結果メッセージを蓄積
+
+        # ファイルごとにループ
+        for file_obj in files:
+            filename = file_obj.name.lower()
+            try:
+                # PDF or DOCX かを判定
+                if filename.endswith('.pdf'):
+                    text_content = extract_text_from_pdf(file_obj)
+                elif filename.endswith('.docx'):
+                    text_content = extract_text_from_docx(file_obj)
+                else:
+                    results.append(f"{filename}: 未対応のファイル形式です。")
+                    continue
+
+                if not text_content.strip():
+                    results.append(f"{filename}: テキストを抽出できませんでした。")
+                    continue
+
+                # S3 にファイルをアップロード
+                s3_client = boto3.client("s3", region_name="ap-northeast-1")
+                bucket_name = getattr(settings, "S3_BUCKET", "my-bucket")
+                unique_key = str(uuid.uuid4()) + "_" + filename
+                s3_client.upload_fileobj(file_obj, bucket_name, unique_key)
+
+                # DB Document に登録
+                doc = Document.objects.create(title=filename, content="", s3_key=unique_key)
+
+                # 埋め込み生成
+                vector = model.encode([text_content])[0].tolist()
+                Embedding.objects.create(document=doc, vector=bytes(vector))
+
+                # OpenSearch に登録
+                os_doc = {
+                    "title": filename,
+                    "content_s3": f"s3://{bucket_name}/{unique_key}",
+                    "embedding": vector,
+                }
+                os_client.index(index=EMBEDDING_INDEX, body=os_doc)
+
+                results.append(f"{filename}: アップロード成功")
+            except Exception as file_err:
+                logger.exception("Failed to process file: %s", filename)
+                results.append(f"{filename}: エラーが発生しました {file_err}")
+
+        # 全ファイルの結果をまとめて返す
+        return JsonResponse({"message": "完了", "details": results})
+
+    except Exception as e:
+        logger.exception("upload_file_document_view でエラー発生")
+        return JsonResponse({"error": f"エラーが発生しました: {str(e)}"}, status=500)
+
+def extract_text_from_pdf(file_obj) -> str:
+    """ PyPDF2 を使ってPDFのテキストを抽出 """
+    text_output = []
+    pdf_reader = PyPDF2.PdfReader(file_obj)
+    for page in pdf_reader.pages:
+        text_output.append(page.extract_text() or "")
+    return "\n".join(text_output)
+
+def extract_text_from_docx(file_obj) -> str:
+    """ python-docxを使ってWordファイルのテキストを抽出 """
+    doc = docx.Document(file_obj)
+    paragraphs = [p.text for p in doc.paragraphs]
+    return "\n".join(paragraphs) 
