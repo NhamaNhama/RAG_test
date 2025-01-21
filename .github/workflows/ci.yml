@@ -30,4 +30,6 @@ jobs:
       - name: Run tests
         run: |
           export DJANGO_SETTINGS_MODULE=backend.mysite.settings
-          pytest 
+          pytest
+      - name: Check Python Path
+        run: echo "PYTHONPATH=$PYTHONPATH" 
