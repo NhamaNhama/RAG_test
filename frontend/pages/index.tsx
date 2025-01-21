@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Container, Typography, TextField, Button, Paper, Box } from '@mui/material';
+import { Container, Typography, TextField, Button, Paper } from '@mui/material';
 
 export default function Home() {
   const [query, setQuery] = useState('');
