@@ -2,9 +2,11 @@ import os
 
 from pathlib import Path
 import os
+USE_TZ = False
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "change_this_in_production"
 DEBUG = True
+WSGI_APPLICATION = "backend.mysite.wsgi.application"
 ALLOWED_HOSTS = []
 INSTALLED_APPS = [
 'django.contrib.admin',
@@ -35,12 +37,13 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_L10N = True
 
+ROOT_URLCONF = "backend.mysite.urls"
 ES_ENDPOINT = os.getenv("ES_ENDPOINT", "http://localhost:9200")
 EMBEDDING_INDEX = os.getenv("EMBEDDING_INDEX", "embedding_index")
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 STATIC_URL = "/static/"
 
-USE_TZ = False
+
 
 #ES_ENDPOINT = os.getenv("ES_ENDPOINT", "http://localhost:9200")
 #EMBEDDING_INDEX = os.getenv("EMBEDDING_INDEX", "embedding_index")
