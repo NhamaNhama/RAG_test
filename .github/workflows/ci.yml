@@ -29,5 +29,5 @@ jobs:
           pip install pytest
       - name: Run tests
         run: |
-          export DJANGO_SETTINGS_MODULE=mysite.settings
+          export DJANGO_SETTINGS_MODULE=backend.settings
           pytest 
