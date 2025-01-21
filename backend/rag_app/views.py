@@ -5,7 +5,7 @@ import logging
 import re
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from .models import Document, Embedding
+from backend.rag_app.models import Document, Embedding
 from sentence_transformers import SentenceTransformer
 from opensearchpy import OpenSearch
 from django.conf import settings
@@ -378,4 +378,7 @@ def extract_text_from_docx(file_obj) -> str:
     """ python-docx を使ってWordファイルのテキストを抽出 """
     doc = docx.Document(file_obj)
     paragraphs = [p.text for p in doc.paragraphs]
-    return "\n".join(paragraphs) 
+    return "\n".join(paragraphs)
+
+def sample_view():
+    ... 

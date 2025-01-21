@@ -4,6 +4,8 @@ from django.urls import reverse
 from unittest.mock import patch
 import logging
 from backend.rag_app.views import QueryView
+from backend.rag_app.models import SomeModel
+import pytest
 
 class QueryViewTests(TestCase):
     def setUp(self):
@@ -65,4 +67,8 @@ class QueryViewTests(TestCase):
         response = self.client.post(self.url, data=json.dumps(payload), content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertIn("answer", response.json())
-        mock_es.search.assert_called_once() 
+        mock_es.search.assert_called_once()
+
+def test_query_view():
+    # テストコード
+    ... 

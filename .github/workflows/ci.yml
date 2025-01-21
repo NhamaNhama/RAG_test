@@ -5,31 +5,22 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      DJANGO_SETTINGS_MODULE: backend.mysite.settings
     steps:
       - uses: actions/checkout@v2
-      - name: Install latest stable Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
+
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: "3.9"
+          python-version: '3.9'
+
       - name: Install dependencies
-        run: |
-          pip install --upgrade pip
-          pip install setuptools-rust wheel maturin
-          pip install -r requirements.txt
-          pip install pytest
+        run: pip install -r requirements.txt
+
       - name: Export PYTHONPATH
         run: echo "PYTHONPATH=\${PYTHONPATH}:${{ github.workspace }}" >> $GITHUB_ENV
-      - name: Run tests
-        run: |
-          export DJANGO_SETTINGS_MODULE=backend.mysite.settings
-          pytest
+
       - name: Check Python Path
-        run: echo "PYTHONPATH=$PYTHONPATH" 
+        run: python -c "import os; print('PYTHONPATH:', os.environ.get('PYTHONPATH'))"
+
+      - name: Run tests
+        run: pytest 
