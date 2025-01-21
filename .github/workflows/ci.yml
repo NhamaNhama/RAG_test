@@ -11,7 +11,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Install dependencies via pip
-        run: pip install -r requirements.txt
+      - name: Install latest stable Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install setuptools-rust wheel
+          pip install -r requirements.txt
+      - name: Build tokenizers
+        run: |
+          # ここで python setup.py bdist_wheel などを実行
+          # 例) pip install .
+          # or poetry/maturin 等を使う場合はコマンドに合わせる
+          pip install .
       - name: Run tests
         run: pytest 
