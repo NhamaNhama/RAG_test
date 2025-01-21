@@ -16,7 +16,7 @@ from botocore.exceptions import BotoCoreError, ClientError
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
-
+# Anthropic API のエンドポイントを定義
 API_URL = "https://api.anthropic.com/v1/complete"
 
 logger = logging.getLogger(__name__)
