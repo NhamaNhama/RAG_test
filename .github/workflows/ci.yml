@@ -26,8 +26,13 @@ jobs:
           pip install --upgrade pip
           pip install setuptools-rust wheel
           pip install -r requirements.txt
-      - name: Build tokenizers
+      - name: Build / Install tokenizers
         run: |
+          cd tokenizers-lib
+          # もし setup.py があれば
+          # python setup.py bdist_wheel
+          # pip install dist/*.whl
+          # もしくは pyproject.toml があれば以下のように
           pip install .
       - name: Run tests
         run: pytest 
