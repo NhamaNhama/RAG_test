@@ -2,7 +2,6 @@ import os
 
 from pathlib import Path
 import os
-USE_TZ = False
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "change_this_in_production"
 DEBUG = True
@@ -35,7 +34,7 @@ DATABASES = {
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
-USE_L10N = True
+USE_TZ = True
 
 ROOT_URLCONF = "backend.mysite.urls"
 ES_ENDPOINT = os.getenv("ES_ENDPOINT", "http://localhost:9200")
