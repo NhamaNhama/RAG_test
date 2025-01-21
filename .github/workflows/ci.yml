@@ -24,15 +24,11 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install setuptools-rust wheel
+          pip install setuptools-rust wheel maturin
           pip install -r requirements.txt
-      - name: Build / Install tokenizers
+      - name: Build tokenizers (Rust→Python via maturin)
         run: |
           cd tokenizers-lib
-          # もし setup.py があれば
-          # python setup.py bdist_wheel
-          # pip install dist/*.whl
-          # もしくは pyproject.toml があれば以下のように
-          pip install .
+          maturin build --release
       - name: Run tests
         run: pytest 
