@@ -15,7 +15,7 @@ INSTALLED_APPS = [
 'django.contrib.messages',
 'django.contrib.staticfiles',
 # RAG アプリを入れる。
-'rag_app',
+'backend.rag_app',
 ]
 MIDDLEWARE = [
 'django.contrib.sessions.middleware.SessionMiddleware',
