@@ -1,3 +1,0 @@
-encoding.process_tokens_with_offsets_mut(|(i, (token, offsets))| {
-    // ... 処理 ...
-}); 
