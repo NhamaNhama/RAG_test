@@ -25,7 +25,7 @@ Django (バックエンド) + Next.js (フロントエンド) + OpenSearch (全�
 
 3. **OpenSearch**  
    - Docker でローカルに OpenSearch を立ち上げるか、Amazon OpenSearch Service を利用  
-   - ベクトル検索 (dense_vector フィールド) や日本語形態素解析(kuromoji)などに対応  
+   - ベクトル検索 (dense_vector フィールド) や日本語形態素解析 (kuromoji) などに対応  
 
 4. **S3 連携**  
    - Django バックエンドでアップロードされたファイルを S3 に保存し、DB にはキーを保持  
@@ -33,7 +33,7 @@ Django (バックエンド) + Next.js (フロントエンド) + OpenSearch (全�
 
 5. **.github/workflows/ci.yml**  
    - GitHub Actions で各種テストを実行 (pytest 等)  
-   - 環境変数や Secrets を指定することで、ビルド/テスト もしくはデプロイ手順を自動化可能  
+   - 環境変数や Secrets を指定することで、ビルド / テスト もしくはデプロイ手順を自動化可能  
 
 ## セットアップ & 起動手順 (ローカル)
 
@@ -68,23 +68,29 @@ Django (バックエンド) + Next.js (フロントエンド) + OpenSearch (全�
 ## 主な環境変数
 
 - **NEXT_PUBLIC_API_ENDPOINT**  
-  フロントエンドが参照する API のベースURL  
-  (例: https://example.com, ローカル時は http://localhost:8000)  
+  フロントエンドが参照する API のベース URL  
+  (例: https://example.com, ローカル時は http://localhost:8000)
+
 - **S3_BUCKET**  
   Django でファイルアップロードするときの S3 バケット名  
+
 - **ES_ENDPOINT**  
-  OpenSearch エンドポイント (例: http://opensearch:9200 または https://search-xxx.ap-northeast-1.es.amazonaws.com)  
+  OpenSearch エンドポイント (例: http://opensearch:9200 または https://search-xxx.ap-northeast-1.es.amazonaws.com)
+
 - **ANTHROPIC_API_KEY**  
-  Anthropic (Claude) API キー (LLM 推論に使用)  
+  Anthropic (Claude) API キー (LLM 推論に使用)
 
 ## ページの使い方
 
 - **http://localhost:3000/**  
   RAG 検索フォーム。ユーザー入力をバックエンドの /api/query へ送信し、回答を表示  
+
 - **http://localhost:3000/upload**  
-  シンプルなテキストアップロードUI。タイトルと本文を入力 → /api/upload_document  
+  シンプルなテキストアップロード UI。タイトルと本文を入力 → /api/upload_document  
+
 - **http://localhost:3000/uploadFile**  
   PDF/Word (複数ファイル) のアップロード。サーバでテキスト抽出 → Embedding → OpenSearch へ登録  
+
 - **http://localhost:3000/rich**  
   リッチなデザインのデモページ (CSS Modules 使用)
 
@@ -114,13 +120,12 @@ Django (バックエンド) + Next.js (フロントエンド) + OpenSearch (全�
 
 - **S3**  
   - IAM ポリシーで putObject / getObject 権限 (バケット名指定)  
-  - PDF/Word をアップロード/解析 → content を Embedding に反映  
+  - PDF/Word をアップロード / 解析 → content を Embedding に反映  
 
 ## ライセンス・著作権等
 
-- 本サンプルは自由にカスタマイズ可能です。実運用時は認証/認可、監査ログ、セキュリティ要件などを検討してください。  
-- PyPDF2 や python-docx などの外部ライブラリについては、それぞれのライセンスに従ってご利用ください。  
+- 本サンプルは自由にカスタマイズ可能です。実運用時は認証 / 認可、監査ログ、セキュリティ要件などを検討してください。  
+- PyPDF2 や python-docx などの外部ライブラリについては、それぞれのライセンスに従ってご利用ください。
 
 ---
-
 以上で README の概要です。問題報告や改善提案は Pull Request / Issue にてお知らせください。
