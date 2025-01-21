@@ -28,9 +28,6 @@ jobs:
           pip install -r requirements.txt
       - name: Build tokenizers
         run: |
-          # ここで python setup.py bdist_wheel などを実行
-          # 例) pip install .
-          # or poetry/maturin 等を使う場合はコマンドに合わせる
           pip install .
       - name: Run tests
         run: pytest 
