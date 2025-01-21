@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Container, Typography, TextField, Button, Paper, Box } from '@mui/material';
 
 export default function Home() {
   const [userQuery, setUserQuery] = useState('');
@@ -13,9 +14,9 @@ export default function Home() {
     setAnswer('');
 
     try {
-      // 環境変数 (NEXT_PUBLIC_API_ENDPOINT) が無ければローカル用をデフォルトに (例: http://localhost:8000)
-      const apiEndpoint = process.env.NEXT_PUBLIC_API_ENDPOINT || 'http://localhost:8000';
-      const response = await fetch(`${apiEndpoint}/api/query`, {
+      // Next.js での環境変数は "NEXT_PUBLIC_API_ENDPOINT" を使用。
+      const apiUrl = process.env.NEXT_PUBLIC_API_ENDPOINT || 'http://localhost:8000';
+      const response = await fetch(apiUrl + '/query', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: userQuery }),
@@ -36,19 +37,21 @@ export default function Home() {
   }
 
   return (
-    <div style={styles.container}>
-      <h1 style={styles.header}>RAG システム フロントエンド</h1>
+    <Container maxWidth="sm" sx={{ mt: 5 }}>
+      <Typography variant="h4" component="h1" textAlign="center" gutterBottom>
+        RAG 検索デモ
+      </Typography>
       <form onSubmit={handleSubmit} style={styles.form}>
-        <input
+        <TextField
           type="text"
           placeholder="質問を入力してください"
           value={userQuery}
           onChange={(e) => setUserQuery(e.target.value)}
           style={styles.input}
         />
-        <button type="submit" style={styles.button} disabled={loading || !userQuery}>
+        <Button type="submit" style={styles.button} disabled={loading || !userQuery}>
           {loading ? '問い合わせ中…' : '送信'}
-        </button>
+        </Button>
       </form>
 
       {errorMessage && <p style={styles.error}>エラー: {errorMessage}</p>}
@@ -58,7 +61,7 @@ export default function Home() {
           <p>{answer}</p>
         </div>
       )}
-    </div>
+    </Container>
   );
 }
 
