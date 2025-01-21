@@ -1,78 +1,101 @@
-import React from 'react';
-import { useState } from 'react';
-import { Container, Typography, TextField, Button, Paper, Box } from '@mui/material';
-
-// ▼ 追加: カスタムフックを用意
-function useRagSearch() {
-  const [response, setResponse] = useState('');
-
-  const doSearch = async (query: string) => {
-    try {
-      // ▼ ここで環境変数から API URL を取得できるようにする
-      const apiUrl = process.env.NEXT_PUBLIC_RAG_API_URL || 'http://localhost:8000/api';
-      const res = await fetch(`${apiUrl}/query/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query }),
-      });
-      const data = await res.json();
-      setResponse(data.answer);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  return { response, doSearch };
-}
+import React, { useState } from 'react';
 
 export default function Home() {
-  const [query, setQuery] = useState('');
-  // ▼ 上記フックを利用
-  const { response, doSearch } = useRagSearch();
+  const [userQuery, setUserQuery] = useState('');
+  const [answer, setAnswer] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    // AWS API Gateway 経由のURLを想定
-    const response = await fetch(process.env.REACT_APP_API_ENDPOINT + '/query', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query: query }),
-    });
-    const data = await response.json();
-    setQuery(data.answer);
-  };
+    setLoading(true);
+    setErrorMessage('');
+    setAnswer('');
+
+    try {
+      // 環境変数 (NEXT_PUBLIC_API_ENDPOINT) が無ければローカル用をデフォルトに (例: http://localhost:8000)
+      const apiEndpoint = process.env.NEXT_PUBLIC_API_ENDPOINT || 'http://localhost:8000';
+      const response = await fetch(`${apiEndpoint}/api/query`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: userQuery }),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        setErrorMessage(errorData.error || 'サーバエラーが発生しました');
+      } else {
+        const data = await response.json();
+        setAnswer(data.answer || '回答が取得できませんでした');
+      }
+    } catch (err) {
+      console.error(err);
+      setErrorMessage('通信エラーが発生しました。サーバにアクセスできません。');
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 5 }}>
-      <Typography variant="h4" component="h1" textAlign="center" gutterBottom>
-        RAG 検索デモ
-      </Typography>
-      <Paper sx={{ p: 3, mb: 2 }}>
-        <form onSubmit={handleSubmit}>
-          <Box sx={{ mb: 2 }}>
-            <Typography variant="subtitle1" component="label" htmlFor="rag-query" display="block" gutterBottom>
-              検索キーワード:
-            </Typography>
-            <TextField
-              id="rag-query"
-              fullWidth
-              variant="outlined"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="キーワードを入力してください"
-            />
-          </Box>
-          <Button variant="contained" color="primary" type="submit">
-            検索
-          </Button>
-        </form>
-      </Paper>
-      <Paper sx={{ p: 3 }}>
-        <Typography variant="h6" gutterBottom>
-          応答:
-        </Typography>
-        <Typography>{response}</Typography>
-      </Paper>
-    </Container>
+    <div style={styles.container}>
+      <h1 style={styles.header}>RAG システム フロントエンド</h1>
+      <form onSubmit={handleSubmit} style={styles.form}>
+        <input
+          type="text"
+          placeholder="質問を入力してください"
+          value={userQuery}
+          onChange={(e) => setUserQuery(e.target.value)}
+          style={styles.input}
+        />
+        <button type="submit" style={styles.button} disabled={loading || !userQuery}>
+          {loading ? '問い合わせ中…' : '送信'}
+        </button>
+      </form>
+
+      {errorMessage && <p style={styles.error}>エラー: {errorMessage}</p>}
+      {answer && (
+        <div style={styles.answerContainer}>
+          <strong>回答:</strong>
+          <p>{answer}</p>
+        </div>
+      )}
+    </div>
   );
-} 
+}
+
+const styles: { [key: string]: React.CSSProperties } = {
+  container: {
+    maxWidth: '600px',
+    margin: '40px auto',
+    padding: '0 20px',
+    fontFamily: 'sans-serif',
+  },
+  header: {
+    textAlign: 'center',
+    marginBottom: '20px',
+    fontSize: '24px',
+  },
+  form: {
+    display: 'flex',
+    gap: '8px',
+    marginBottom: '16px',
+  },
+  input: {
+    flex: 1,
+    padding: '8px',
+    fontSize: '16px',
+  },
+  button: {
+    padding: '8px 16px',
+    fontSize: '16px',
+    cursor: 'pointer',
+  },
+  error: {
+    color: 'red',
+  },
+  answerContainer: {
+    marginTop: '16px',
+    background: '#f5f5f5',
+    padding: '16px',
+    borderRadius: '4px',
+  },
+}; 
