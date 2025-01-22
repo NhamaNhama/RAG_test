@@ -14,4 +14,7 @@ pytest-django
 # PDF抽出用ライブラリ
 PyPDF2==3.0.1
 
+# Word(docx)抽出用ライブラリ
+python-docx==0.8.11
+
 # 必要に応じて他ライブラリ追加 
