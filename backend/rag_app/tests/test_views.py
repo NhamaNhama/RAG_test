@@ -6,6 +6,7 @@ import logging
 from backend.rag_app.views import QueryView
 from backend.rag_app.models import SomeModel
 import pytest
+from huggingface_hub import hf_hub_download
 
 class QueryViewTests(TestCase):
     def setUp(self):
@@ -71,4 +72,8 @@ class QueryViewTests(TestCase):
 
 def test_query_view():
     # テストコード
+    ... 
+
+def test_something():
+    model_path = hf_hub_download(repo_id="...", filename="...")
     ... 
