@@ -18,3 +18,9 @@ class Document(TimeStampedModel):
 class Embedding(TimeStampedModel):
     document = models.ForeignKey(Document, on_delete=models.CASCADE)
     vector = models.BinaryField()  # もしくは Float Vector, pgvector拡張など 
+
+class SomeModel(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name 
