@@ -10,6 +10,6 @@ unidic-lite==1.0.8
 pytest
 pytest-django
 
-huggingface_hub>=0.11.0  # hf_hub_download が使えるバージョンを指定
+huggingface_hub>=0.11.0
 
 # 必要に応じて他ライブラリ追加 

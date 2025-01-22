@@ -80,3 +80,7 @@ def test_download():
         filename="some-file"
     )
     ... 
+
+def test_something():
+    model_path = hf_hub_download(repo_id="some-repo", filename="some-file")
+    ... 
