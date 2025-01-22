@@ -8,14 +8,16 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Remove pip cache
+        run: rm -rf /home/runner/.cache/pip
+
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: '3.9'
 
       - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
+        run: pip install --upgrade -r requirements.txt
 
       - name: Export PYTHONPATH
         run: echo "PYTHONPATH=\${PYTHONPATH}:${{ github.workspace }}" >> $GITHUB_ENV
