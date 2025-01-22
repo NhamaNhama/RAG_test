@@ -11,5 +11,7 @@ unidic-lite==1.0.8
 pytest
 pytest-django
 
+# PDF抽出用ライブラリ
+PyPDF2==3.0.1
 
 # 必要に応じて他ライブラリ追加 
