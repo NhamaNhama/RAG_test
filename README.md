@@ -129,3 +129,8 @@ Django (バックエンド) + Next.js (フロントエンド) + OpenSearch (全�
 
 ---
 以上で README の概要です。問題報告や改善提案は Pull Request / Issue にてお知らせください。
+
+# Usage
+from huggingface_hub import hf_hub_download
+
+model_path = hf_hub_download(repo_id="my_org/my_repo", filename="my_model.bin")
