@@ -8,6 +8,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Install stable Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
       - name: Remove pip cache
         run: rm -rf /home/runner/.cache/pip
 
@@ -16,8 +23,10 @@ jobs:
         with:
           python-version: '3.9'
 
-      - name: Install dependencies
-        run: pip install --upgrade -r requirements.txt
+      - name: Install Python dependencies (with setuptools-rust)
+        run: |
+          pip install --upgrade -r requirements.txt
+          pip install setuptools-rust wheel
 
       - name: Export PYTHONPATH
         run: echo "PYTHONPATH=\${PYTHONPATH}:${{ github.workspace }}" >> $GITHUB_ENV
