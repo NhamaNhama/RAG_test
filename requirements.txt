@@ -8,4 +8,5 @@ transformers==4.30.2
 sudachipy==0.6.7
 unidic-lite==1.0.8
 pytest
+pytest-django
 # 必要に応じて他ライブラリ追加 
