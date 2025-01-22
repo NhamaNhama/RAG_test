@@ -9,6 +9,6 @@ sudachipy==0.6.7
 unidic-lite==1.0.8
 pytest
 pytest-django
-huggingface_hub==0.10.1
+
 
 # 必要に応じて他ライブラリ追加 
