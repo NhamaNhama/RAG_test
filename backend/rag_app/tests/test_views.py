@@ -74,6 +74,9 @@ def test_query_view():
     # テストコード
     ... 
 
-def test_something():
-    model_path = hf_hub_download(repo_id="...", filename="...")
+def test_download():
+    model_path = hf_hub_download(
+        repo_id="some-repo",
+        filename="some-file"
+    )
     ... 
