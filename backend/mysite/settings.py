@@ -16,6 +16,7 @@ INSTALLED_APPS = [
 'django.contrib.staticfiles',
 # RAG アプリを入れる。
 'backend.rag_app',
+'rest_framework',  # Pe802
 ]
 MIDDLEWARE = [
 'django.contrib.sessions.middleware.SessionMiddleware',
@@ -42,7 +43,15 @@ EMBEDDING_INDEX = os.getenv("EMBEDDING_INDEX", "embedding_index")
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 STATIC_URL = "/static/"
 
-
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}  # P2478
 
 #ES_ENDPOINT = os.getenv("ES_ENDPOINT", "http://localhost:9200")
 #EMBEDDING_INDEX = os.getenv("EMBEDDING_INDEX", "embedding_index")
@@ -53,4 +62,4 @@ STATIC_URL = "/static/"
 # 例:
 # DB_NAME = os.getenv("DB_NAME", "my_db")
 # DB_USER = os.getenv("DB_USER", "user")
-# DB_PASS = os.getenv("DB_PASS", "secret") 
+# DB_PASS = os.getenv("DB_PASS", "secret")

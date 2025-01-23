@@ -4,7 +4,7 @@ from django.urls import reverse
 from unittest.mock import patch
 import logging
 from backend.rag_app.views import QueryView
-from backend.rag_app.models import SomeModel
+from backend.rag_app.models import SomeModel, User, Document, Embedding
 import pytest
 from huggingface_hub import hf_hub_download
 
@@ -69,6 +69,64 @@ class QueryViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("answer", response.json())
         mock_es.search.assert_called_once()
+
+class UserViewSetTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.url = reverse('user-list')
+
+    def test_create_user(self):
+        payload = {"username": "testuser", "email": "test@example.com", "password": "password123"}
+        response = self.client.post(self.url, data=json.dumps(payload), content_type='application/json')
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(User.objects.count(), 1)
+        self.assertEqual(User.objects.get().username, "testuser")
+
+    def test_list_users(self):
+        User.objects.create(username="user1", email="user1@example.com", password="password1")
+        User.objects.create(username="user2", email="user2@example.com", password="password2")
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()), 2)
+
+class DocumentViewSetTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.url = reverse('document-list')
+
+    def test_create_document(self):
+        payload = {"title": "Test Document", "content": "This is a test document."}
+        response = self.client.post(self.url, data=json.dumps(payload), content_type='application/json')
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(Document.objects.count(), 1)
+        self.assertEqual(Document.objects.get().title, "Test Document")
+
+    def test_list_documents(self):
+        Document.objects.create(title="Doc1", content="Content1")
+        Document.objects.create(title="Doc2", content="Content2")
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()), 2)
+
+class EmbeddingViewSetTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.url = reverse('embedding-list')
+        self.document = Document.objects.create(title="Doc1", content="Content1")
+
+    def test_create_embedding(self):
+        payload = {"document": self.document.id, "vector": b"vector_data"}
+        response = self.client.post(self.url, data=json.dumps(payload), content_type='application/json')
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(Embedding.objects.count(), 1)
+        self.assertEqual(Embedding.objects.get().document, self.document)
+
+    def test_list_embeddings(self):
+        Embedding.objects.create(document=self.document, vector=b"vector1")
+        Embedding.objects.create(document=self.document, vector=b"vector2")
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()), 2)
 
 def test_query_view():
     # テストコード
