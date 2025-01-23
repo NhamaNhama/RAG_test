@@ -5,7 +5,7 @@ import logging
 import re
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from backend.rag_app.models import Document, Embedding
+from backend.rag_app.models import Document, Embedding, User
 from sentence_transformers import SentenceTransformer
 from opensearchpy import OpenSearch
 from django.conf import settings
@@ -19,6 +19,8 @@ import uuid
 import PyPDF2
 import docx
 from django.core.files.storage import default_storage
+from rest_framework import viewsets
+from .serializers import UserSerializer, DocumentSerializer, EmbeddingSerializer
 
 
 API_URL = "https://api.anthropic.com/v1/complete"
@@ -378,7 +380,16 @@ def extract_text_from_docx(file_obj) -> str:
     """ python-docx を使ってWordファイルのテキストを抽出 """
     doc = docx.Document(file_obj)
     paragraphs = [p.text for p in doc.paragraphs]
-    return "\n".join(paragraphs)
+    return "\n.join(paragraphs)
 
-def sample_view():
-    ... 
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+class DocumentViewSet(viewsets.ModelViewSet):
+    queryset = Document.objects.all()
+    serializer_class = DocumentSerializer
+
+class EmbeddingViewSet(viewsets.ModelViewSet):
+    queryset = Embedding.objects.all()
+    serializer_class = EmbeddingSerializer
