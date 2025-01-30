@@ -16,7 +16,7 @@ from botocore.exceptions import BotoCoreError, ClientError
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 import uuid
-import PyPDF2
+import pypdf
 import docx
 from django.core.files.storage import default_storage
 
@@ -369,8 +369,8 @@ def upload_file_document_view(request):
 def extract_text_from_pdf(file_obj) -> str:
     """ PyPDF2 を使ってPDFのテキストを抽出。 """
     text_output = []
-    pdf_reader = PyPDF2.PdfReader(file_obj)
-    for page in pdf_reader.pages:
+    reader = pypdf.PdfReader(file_obj)
+    for page in reader.pages:
         text_output.append(page.extract_text() or "")
     return "\n".join(text_output)
 
