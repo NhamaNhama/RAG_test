@@ -3,10 +3,9 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from unittest.mock import patch
 import logging
-from backend.rag_app.views import QueryView
+from backend.rag_app.views import QueryView, load_model_offline
 from backend.rag_app.models import SomeModel
 import pytest
-from huggingface_hub import hf_hub_download
 
 class QueryViewTests(TestCase):
     def setUp(self):
@@ -75,20 +74,24 @@ def test_query_view():
     ... 
 
 def test_download():
-    model_path = hf_hub_download(
+    model_path = load_model_offline(
         repo_id="some-repo",
         filename="some-file"
     )
     ... 
 
 def test_something():
-    model_path = hf_hub_download(repo_id="some-repo", filename="some-file")
+    model_path = load_model_offline(repo_id="some-repo", filename="some-file")
     ... 
 
 MODEL_ID = "Helsinki-NLP/opus-mt-ja-es"
 
-def test_es_connection_error(self):
-    # ...
-    # ここで MODEL_ID を使っていた場合、上書き
-    # ...
+def test_es_connection_error():
     pass
+
+def test_model_download_offline():
+    downloaded_file = load_model_offline(
+        repo_id=MODEL_ID,
+        filename="pytorch_model.bin"
+    )
+    assert downloaded_file is not None
