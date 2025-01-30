@@ -84,3 +84,10 @@ def test_download():
 def test_something():
     model_path = hf_hub_download(repo_id="some-repo", filename="some-file")
     ... 
+
+MODEL_ID = "facebook/mbart-large-50-many-to-many-mmt"
+
+def test_es_connection_error(self):
+    # ...
+    # ここで MODEL_ID を使っていた場合、上書き
+    # ... 
