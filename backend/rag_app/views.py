@@ -9,7 +9,7 @@ from backend.rag_app.models import Document, Embedding
 from sentence_transformers import SentenceTransformer
 from opensearchpy import OpenSearch
 from django.conf import settings
-from transformers import pipeline  # 日本語要約モデル用
+from transformers import pipeline
 from sudachipy import Dictionary  # ← 追加
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
@@ -58,7 +58,7 @@ def put_rag_metric(metric_name: str, value: float):
     )
 
 # ▼ Hugging Face Transformers を用いた日本語要約パイプライン (DistilBART)
-summarizer = pipeline("summarization", model="facebook/mbart-large-50-many-to-many-mmt")
+summary_pipe = pipeline("translation", model="Helsinki-NLP/opus-mt-ja-es")
 
 TOKENIZER = Dictionary(dict_type="core").create()
 
@@ -112,7 +112,7 @@ def summarize_text(text: str) -> str:
     if not text:
         return ""
     try:
-        summary_list = summarizer(text, max_length=60, min_length=10, do_sample=False)
+        summary_list = summary_pipe(text, max_length=60, min_length=10, do_sample=False)
         if summary_list and "summary_text" in summary_list[0]:
             return summary_list[0]["summary_text"]
         else:
