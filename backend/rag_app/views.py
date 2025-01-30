@@ -58,7 +58,7 @@ def put_rag_metric(metric_name: str, value: float):
     )
 
 # ▼ Hugging Face Transformers を用いた日本語要約パイプライン (DistilBART)
-summarizer = pipeline("summarization", model="line-corp/line-distilbart-ja-es-news")
+summarizer = pipeline("summarization", model="facebook/mbart-large-50-many-to-many-mmt")
 
 TOKENIZER = Dictionary(dict_type="core").create()
 
