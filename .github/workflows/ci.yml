@@ -28,6 +28,9 @@ jobs:
           pip install --upgrade -r requirements.txt
           pip install setuptools-rust wheel
 
+      - name: Install pytest-django
+        run: pip install pytest-django
+
       - name: Export PYTHONPATH
         run: echo "PYTHONPATH=\${PYTHONPATH}:${{ github.workspace }}" >> $GITHUB_ENV
 
