@@ -380,33 +380,4 @@ def extract_text_from_docx(file_obj) -> str:
     """ python-docx を使ってWordファイルのテキストを抽出 """
     doc = docx.Document(file_obj)
     paragraphs = [p.text for p in doc.paragraphs]
-    return "\n".join(paragraphs)
-
-def sample_view():
-    ... 
-
-def download_with_retry(repo_id: str, filename: str, max_retries=3):
-    """hf_hub_download を指定回数リトライするヘルパー関数"""
-    for attempt in range(max_retries):
-        try:
-            return hf_hub_download(repo_id=repo_id, filename=filename)
-        except requests.exceptions.ReadTimeout as e:
-            if attempt < max_retries - 1:
-                time.sleep(5)  # バックオフ
-            else:
-                raise e 
-
-def load_model_offline(repo_id: str, filename: str, revision="main"):
-    """
-    ローカルキャッシュにあるモデルをロード (ダウンロードしない)
-    """
-    return hf_hub_download(
-        repo_id=repo_id,
-        filename=filename,
-        revision=revision,
-        local_files_only=True,  # ネットワークアクセスを行わず、キャッシュを参照
-    )
-
-def some_view_function(request):
-    # ...
-    pass 
+    return "\n.join(paragraphs)
