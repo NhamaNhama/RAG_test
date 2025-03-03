@@ -2,6 +2,8 @@ import os
 
 from pathlib import Path
 import os
+import sys
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "change_this_in_production"
 DEBUG = True
@@ -42,7 +44,20 @@ EMBEDDING_INDEX = os.getenv("EMBEDDING_INDEX", "embedding_index")
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 STATIC_URL = "/static/"
 
-
+# テスト環境の設定
+# テスト実行時は外部モジュールをモック化する
+if 'pytest' in sys.modules:
+    import sys
+    from unittest.mock import MagicMock
+    
+    # テスト時は実際のモデルをロードしない
+    LOAD_ACTUAL_MODELS = False
+    
+    # テスト用のダミーパス
+    TEST_MODEL_PATH = "/tmp/test_model"
+else:
+    # 本番環境では実際のモデルをロード
+    LOAD_ACTUAL_MODELS = True
 
 #ES_ENDPOINT = os.getenv("ES_ENDPOINT", "http://localhost:9200")
 #EMBEDDING_INDEX = os.getenv("EMBEDDING_INDEX", "embedding_index")

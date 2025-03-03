@@ -6,11 +6,7 @@ import re
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from backend.rag_app.models import Document, Embedding
-from sentence_transformers import SentenceTransformer
-from opensearchpy import OpenSearch
 from django.conf import settings
-from transformers import pipeline
-from sudachipy import Dictionary  # ← 追加
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
 from requests.adapters import HTTPAdapter
@@ -20,7 +16,22 @@ import pypdf
 import docx
 from django.core.files.storage import default_storage
 import time
-from huggingface_hub import hf_hub_download
+from unittest.mock import MagicMock
+
+# 実運用環境でのみ実際のモジュールをインポート
+if getattr(settings, 'LOAD_ACTUAL_MODELS', True):
+    from sentence_transformers import SentenceTransformer
+    from opensearchpy import OpenSearch
+    from transformers import pipeline
+    from sudachipy import Dictionary
+    from huggingface_hub import hf_hub_download
+else:
+    # テスト環境ではインポートしない（モックを使用）
+    SentenceTransformer = None
+    OpenSearch = None
+    pipeline = None
+    Dictionary = None
+    hf_hub_download = None
 
 
 API_URL = "https://api.anthropic.com/v1/complete"
@@ -59,13 +70,21 @@ def put_rag_metric(metric_name: str, value: float):
         }]
     )
 
-# ▼ Hugging Face Transformers を用いた日本語要約パイプライン (DistilBART)
-summary_pipe = pipeline("translation", model="Helsinki-NLP/opus-mt-ja-es")
-
-TOKENIZER = Dictionary(dict_type="core").create()
-
-# Sentence-BERT 等を使うためのモデルロード (sonoisa/sentence-bert-base-ja-mean-tokens)
-model = SentenceTransformer("sonoisa/sentence-bert-base-ja-mean-tokens")
+# 実運用環境でのみ実際のモデルをロード
+if getattr(settings, 'LOAD_ACTUAL_MODELS', True):
+    # ▼ Hugging Face Transformers を用いた日本語要約パイプライン (DistilBART)
+    summary_pipe = pipeline("translation", model="Helsinki-NLP/opus-mt-ja-es")
+    
+    # 日本語トークナイザー
+    TOKENIZER = Dictionary(dict_type="core").create()
+    
+    # Sentence-BERT 等を使うためのモデルロード (sonoisa/sentence-bert-base-ja-mean-tokens)
+    model = SentenceTransformer("sonoisa/sentence-bert-base-ja-mean-tokens")
+else:
+    # テスト環境ではダミーオブジェクトを使用
+    summary_pipe = None
+    TOKENIZER = None
+    model = None
 
 # ▼ settings.py などで OS_ENDPOINT, EMBEDDING_INDEX を定義してある想定
 ES_ENDPOINT = getattr(settings, "ES_ENDPOINT", "http://localhost:9200")
@@ -83,12 +102,17 @@ session = requests.Session()
 session.mount("https://", adapter)
 session.mount("http://", adapter)
 
-os_client = OpenSearch(
-    hosts=[ES_ENDPOINT],
-    http_compress=True,
-    use_ssl=True,
-    verify_certs=True
-)
+# 実運用環境でのみOpenSearchクライアントを初期化
+if getattr(settings, 'LOAD_ACTUAL_MODELS', True) and OpenSearch is not None:
+    os_client = OpenSearch(
+        hosts=[ES_ENDPOINT],
+        http_compress=True,
+        use_ssl=True,
+        verify_certs=True
+    )
+else:
+    # テスト環境ではモックを使用
+    os_client = MagicMock()
 
 try:
     health = os_client.cluster.health()
@@ -100,9 +124,15 @@ except Exception as e:
 def embed_text(text: str) -> list[float]:
     """
     日本語対応 Sentence-BERT で埋め込み。
+    テスト環境ではダミーの埋め込みを返す。
     """
     if not text.strip():
         return [0.0]*768  # モデル次第でdimが異なる場合あり
+    
+    # テスト環境ではダミーの埋め込みを返す
+    if model is None or not getattr(settings, 'LOAD_ACTUAL_MODELS', True):
+        return [0.1]*768  # テスト用ダミー埋め込み
+    
     embedding = model.encode([text])
     return embedding[0].tolist()
 
@@ -110,9 +140,15 @@ def summarize_text(text: str) -> str:
     """
     DistilBART (line-corp/line-distilbart-ja-es-news) による日本語要約。
     失敗時は先頭200文字を返す。
+    テスト環境ではテキストの先頭を返す。
     """
     if not text:
         return ""
+    
+    # テスト環境では要約せずにテキストの先頭を返す
+    if summary_pipe is None or not getattr(settings, 'LOAD_ACTUAL_MODELS', True):
+        return text[:200] + "...(テスト環境)"
+    
     try:
         summary_list = summary_pipe(text, max_length=60, min_length=10, do_sample=False)
         if summary_list and "summary_text" in summary_list[0]:

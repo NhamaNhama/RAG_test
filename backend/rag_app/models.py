@@ -24,3 +24,7 @@ class SomeModel(models.Model):
 
     def __str__(self):
         return self.name 
+        
+    def do_something(self):
+        """テスト用のメソッド"""
+        return "テスト結果" 

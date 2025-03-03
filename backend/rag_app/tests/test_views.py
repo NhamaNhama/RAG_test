@@ -8,39 +8,15 @@ import pytest
 # 外部モジュールをモック
 import sys
 
-# huggingface_hubのモックを詳細に設定
-huggingface_hub_mock = MagicMock()
-huggingface_hub_mock.constants = MagicMock()
-huggingface_hub_mock.constants.HF_HUB_DISABLE_TELEMETRY = False
-sys.modules['huggingface_hub'] = huggingface_hub_mock
-sys.modules['huggingface_hub.constants'] = huggingface_hub_mock.constants
-
-# transformersモジュールを詳細にモック
+# 必要なモックだけを設定
+# transformersモジュールのモック
 transformers_mock = MagicMock()
-transformers_utils_mock = MagicMock()
-transformers_utils_versions_mock = MagicMock()
-transformers_utils_versions_mock.require_version = MagicMock()
-transformers_utils_versions_mock.require_version_core = MagicMock()
-transformers_utils_mock.versions = transformers_utils_versions_mock
-transformers_mock.utils = transformers_utils_mock
-transformers_mock.dependency_versions_check = MagicMock()
-transformers_mock.pipeline = MagicMock()
 sys.modules['transformers'] = transformers_mock
-sys.modules['transformers.utils'] = transformers_utils_mock
-sys.modules['transformers.utils.versions'] = transformers_utils_versions_mock
-sys.modules['transformers.dependency_versions_check'] = transformers_mock.dependency_versions_check
 
-# sudachipyモジュールをモック
-sudachipy_mock = MagicMock()
-dictionary_mock = MagicMock()
-tokenizer_mock = MagicMock()
-dictionary_mock.create.return_value = tokenizer_mock
-sudachipy_mock.Dictionary = dictionary_mock
-sys.modules['sudachipy'] = sudachipy_mock
-sys.modules['sudachidict_core'] = MagicMock()
-
-# その他のモジュールをモック
+# sentence_transformersモジュールのモック
 sys.modules['sentence_transformers'] = MagicMock()
+
+# opensearchpyモジュールのモック
 sys.modules['opensearchpy'] = MagicMock()
 
 from backend.rag_app.views import query_view, load_model_offline
