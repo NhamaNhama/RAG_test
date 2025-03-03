@@ -3,9 +3,25 @@ from django.test import TestCase, Client, override_settings
 from django.urls import reverse
 from unittest.mock import patch, MagicMock
 import logging
+import pytest
+
+# 外部モジュールをモック
+import sys
+
+# huggingface_hubのモックを詳細に設定
+huggingface_hub_mock = MagicMock()
+huggingface_hub_mock.constants = MagicMock()
+huggingface_hub_mock.constants.HF_HUB_DISABLE_TELEMETRY = False
+sys.modules['huggingface_hub'] = huggingface_hub_mock
+sys.modules['huggingface_hub.constants'] = huggingface_hub_mock.constants
+
+# その他のモジュールをモック
+sys.modules['sentence_transformers'] = MagicMock()
+sys.modules['opensearchpy'] = MagicMock()
+sys.modules['transformers'] = MagicMock()
+
 from backend.rag_app.views import query_view, load_model_offline
 from backend.rag_app.models import SomeModel, Document
-import pytest
 
 @override_settings(ALLOWED_HOSTS=['testserver'])
 class QueryViewTests(TestCase):
@@ -117,7 +133,7 @@ def test_query_view():
     # テストコード
     ... 
 
-@patch("backend.rag_app.views.hf_hub_download", autospec=True)
+@patch("backend.rag_app.views.hf_hub_download")
 def test_download(mock_hf_download):
     # モックの戻り値を設定
     mock_hf_download.return_value = "/path/to/mocked/model/file"
@@ -131,7 +147,7 @@ def test_download(mock_hf_download):
     mock_hf_download.assert_called_once()
     assert model_path == "/path/to/mocked/model/file"
 
-@patch("backend.rag_app.views.hf_hub_download", autospec=True)
+@patch("backend.rag_app.views.hf_hub_download")
 def test_something(mock_hf_download):
     # モックの戻り値を設定
     mock_hf_download.return_value = "/path/to/mocked/model/file"
@@ -147,7 +163,7 @@ MODEL_ID = "Helsinki-NLP/opus-mt-ja-es"
 def test_es_connection_error():
     pass
 
-@patch("backend.rag_app.views.hf_hub_download", autospec=True)
+@patch("backend.rag_app.views.hf_hub_download")
 def test_model_download_offline(mock_hf_download):
     # モックの戻り値を設定
     mock_hf_download.return_value = "/path/to/mocked/model/file"
