@@ -30,6 +30,15 @@ sys.modules['transformers.utils'] = transformers_utils_mock
 sys.modules['transformers.utils.versions'] = transformers_utils_versions_mock
 sys.modules['transformers.dependency_versions_check'] = transformers_mock.dependency_versions_check
 
+# sudachipyモジュールをモック
+sudachipy_mock = MagicMock()
+dictionary_mock = MagicMock()
+tokenizer_mock = MagicMock()
+dictionary_mock.create.return_value = tokenizer_mock
+sudachipy_mock.Dictionary = dictionary_mock
+sys.modules['sudachipy'] = sudachipy_mock
+sys.modules['sudachidict_core'] = MagicMock()
+
 # その他のモジュールをモック
 sys.modules['sentence_transformers'] = MagicMock()
 sys.modules['opensearchpy'] = MagicMock()

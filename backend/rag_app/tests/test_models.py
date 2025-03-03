@@ -1,5 +1,7 @@
 from unittest.mock import patch, MagicMock
 import sys
+import pytest
+from django.test import TestCase
 
 # huggingface_hubのモックを詳細に設定
 huggingface_hub_mock = MagicMock()
@@ -23,9 +25,20 @@ sys.modules['transformers.utils'] = transformers_utils_mock
 sys.modules['transformers.utils.versions'] = transformers_utils_versions_mock
 sys.modules['transformers.dependency_versions_check'] = transformers_mock.dependency_versions_check
 
+# sudachipyモジュールをモック
+sudachipy_mock = MagicMock()
+dictionary_mock = MagicMock()
+tokenizer_mock = MagicMock()
+dictionary_mock.create.return_value = tokenizer_mock
+sudachipy_mock.Dictionary = dictionary_mock
+sys.modules['sudachipy'] = sudachipy_mock
+sys.modules['sudachidict_core'] = MagicMock()
+
 # その他の外部モジュールをモック
 sys.modules['sentence_transformers'] = MagicMock()
 sys.modules['opensearchpy'] = MagicMock()
+
+from backend.rag_app.models import SomeModel
 
 @patch("backend.rag_app.views.hf_hub_download")
 def test_model_behavior(mock_hf_download):
