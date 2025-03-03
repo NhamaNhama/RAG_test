@@ -15,10 +15,24 @@ huggingface_hub_mock.constants.HF_HUB_DISABLE_TELEMETRY = False
 sys.modules['huggingface_hub'] = huggingface_hub_mock
 sys.modules['huggingface_hub.constants'] = huggingface_hub_mock.constants
 
+# transformersモジュールを詳細にモック
+transformers_mock = MagicMock()
+transformers_utils_mock = MagicMock()
+transformers_utils_versions_mock = MagicMock()
+transformers_utils_versions_mock.require_version = MagicMock()
+transformers_utils_versions_mock.require_version_core = MagicMock()
+transformers_utils_mock.versions = transformers_utils_versions_mock
+transformers_mock.utils = transformers_utils_mock
+transformers_mock.dependency_versions_check = MagicMock()
+transformers_mock.pipeline = MagicMock()
+sys.modules['transformers'] = transformers_mock
+sys.modules['transformers.utils'] = transformers_utils_mock
+sys.modules['transformers.utils.versions'] = transformers_utils_versions_mock
+sys.modules['transformers.dependency_versions_check'] = transformers_mock.dependency_versions_check
+
 # その他のモジュールをモック
 sys.modules['sentence_transformers'] = MagicMock()
 sys.modules['opensearchpy'] = MagicMock()
-sys.modules['transformers'] = MagicMock()
 
 from backend.rag_app.views import query_view, load_model_offline
 from backend.rag_app.models import SomeModel, Document
