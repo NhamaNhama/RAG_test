@@ -116,11 +116,26 @@ Django (バックエンド) + Next.js (フロントエンド) + OpenSearch (全�
 
 - **Amazon OpenSearch Service**  
   - ES_ENDPOINT をサービスのドメインに設定  
-  - VPC 内でプライベート接続 or IP-based auth / IAM SigV4 認証などを設定  
+  - VPC 内でプライベート接続 or IP-based auth / IAM SigV4 認証などを設定
 
-- **S3**  
-  - IAM ポリシーで putObject / getObject 権限 (バケット名指定)  
-  - PDF/Word をアップロード / 解析 → content を Embedding に反映  
+- **S3**
+  - IAM ポリシーで putObject / getObject 権限 (バケット名指定)
+  - PDF/Word をアップロード / 解析 → content を Embedding に反映
+
+## 新規参加者向けの学習の手引き
+
+1. **環境構築**
+   - Python と npm の依存をインストールした後、`docker-compose up --build` で一式を起動できます。
+2. **環境変数の設定**
+   - `.env` や Docker Compose ファイルに `ES_ENDPOINT` や `EMBEDDING_INDEX` などを定義します。
+3. **バックエンドコードの確認**
+   - `Document`・`Embedding` モデルや外部サービス呼び出し（OpenSearch、Anthropic、S3）の実装を読むと理解が深まります。
+4. **フロントエンドの確認**
+   - `frontend/pages/index.tsx` を中心に、アップロード画面やリッチ UI も見てみましょう。
+5. **テストを実行する**
+   - `pytest` または `python manage.py test` でユニットテストを走らせ、必要に応じてテストを追加してください。
+6. **OpenSearch の初期設定 (任意)**
+   - `scripts/init_opensearch.py` には日本語解析用設定の例があります。
 
 ## ライセンス・著作権等
 
@@ -130,7 +145,3 @@ Django (バックエンド) + Next.js (フロントエンド) + OpenSearch (全�
 ---
 以上で README の概要です。問題報告や改善提案は Pull Request / Issue にてお知らせください。
 
-# Usage
-from huggingface_hub import hf_hub_download
-
-model_path = hf_hub_download(repo_id="my_org/my_repo", filename="my_model.bin")
