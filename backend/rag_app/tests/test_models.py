@@ -29,4 +29,4 @@ def test_model_behavior(mock_hf_download):
     assert result is not None
     # SomeModelのdo_somethingメソッドはhf_hub_downloadを呼び出さないので、
     # このアサーションは削除または修正する
-    # mock_hf_download.assert_called_once() 
+    # mock_hf_download.assert_called_once()

@@ -317,11 +317,11 @@ def upload_document_view(request):
                 s3_key=unique_key
             )
 
-            # ベクトル生成 (sentence-transformers 等)
-            vector = model.encode([content])[0].tolist()
+            # ベクトル生成 (SentenceTransformer 等)
+            vector = embed_text(content)
 
             # Embeddingモデルに保存
-            Embedding.objects.create(document=doc, vector=bytes(vector))
+            Embedding.objects.create(document=doc, vector=json.dumps(vector).encode("utf-8"))
 
             # OpenSearch にインデックス
             os_doc = {
@@ -383,8 +383,8 @@ def upload_file_document_view(request):
                 )
 
                 # Embedding を生成
-                vector = model.encode([text_content])[0].tolist()
-                Embedding.objects.create(document=doc, vector=bytes(vector))
+                vector = embed_text(text_content)
+                Embedding.objects.create(document=doc, vector=json.dumps(vector).encode("utf-8"))
 
                 # OpenSearch に登録
                 os_doc = {
